@@ -1,12 +1,14 @@
 package onshape_test
 
 import (
+	"context"
+	"log"
+	"slices"
 	"testing"
 
 	"github.com/onshape-public/go-client/onshape"
 	"github.com/onshape-public/go-client/onshape_test/testhelper"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/exp/slices"
 )
 
 const (
@@ -30,6 +32,21 @@ func TestDocumentAPI(t *testing.T) {
 		"wvm": "w",
 		"vm":  "v",
 	}.InheritDefaults(Context()))
+	client := Context()["client"].(*onshape.APIClient)
+	ctx := Context()["ctx"].(context.Context)
+	did, wid, _ := testhelper.SetupDocument(ctx, client, "TestDocumentApi")
+	targetDocumentName := testhelper.DocumentName+"_target_doc"
+	elemInfo, rawResp, err := client.DocumentApi.GetElementsInDocument(ctx, did, "w", wid).Execute()
+	if err != nil || (rawResp != nil && rawResp.StatusCode >= 300) {
+		log.Fatal("err: ", err, " -- Response status: ", rawResp)
+	}
+	elementsToMove := []string{elemInfo[0].GetId()}
+	OpenAPITest{
+		Call: Context()["ApiService"].(*onshape.DocumentApiService).MoveElementsToDocument(ctx,  did, wid),
+		Context: TestingContext{"bTMoveElementParams": &onshape.BTMoveElementParams{Name: &targetDocumentName, SourceDocumentId: &did, SourceWorkspaceId: &wid, Elements: elementsToMove}},
+		Expect: NoAPIError(),
+	}.Execute()
+
 
 	OpenAPITest{
 		Call:   onshape.ApiCreateDocumentRequest{},
