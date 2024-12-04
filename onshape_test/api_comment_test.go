@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/onshape-public/go-client/onshape"
 	"github.com/onshape-public/go-client/onshape_test/testhelper"
 	"github.com/stretchr/testify/require"
@@ -133,5 +134,81 @@ func TestCommentAPI(t *testing.T) {
 	OpenAPITest{
 		Call:   commentApi.DeleteComment(ctx, cid),
 		Expect: NoAPIError(),
+	}.Execute()
+}
+
+// This test creates
+// a thread of comments in the order: A, B i.e. comment B is a reply to comment A
+// A: references element e1
+// B: references element e2
+func TestCommentThreadReferenceModels(t *testing.T) {
+	documentName := "TestCommentThreadReferenceModels-" + uuid.New().String()
+	did, wid, teardownDoc := testhelper.SetupDocument(ctx, client, documentName)
+
+	defer teardownDoc()
+
+	type args struct {
+		elementNames []string
+	}
+	
+	elements := args{[]string{"e1.PRT", "e2.PRT"}}
+	
+	bulkAppElementParams := onshape.NewBTAppElementBulkCreateParams("CollabBulkCreate")
+	bulkAppElementParams.SetNames(elements.elementNames)
+	bulkAppElementParams.SetDescription("Multiple elements in one thread of comments")
+
+	appElementBulkCreateInfo, rawResp, err :=
+		client.AppElementApi.BulkCreateElement(ctx, did, wid).BTAppElementBulkCreateParams(*bulkAppElementParams).Execute()
+	require.NoError(t, err, "Error Creating Bulk App Element")
+	require.NotNil(t, rawResp, "Response should not be nil")
+	require.True(t, rawResp.StatusCode < 300, "Status code should be less than 300")
+	require.NotNil(t, appElementBulkCreateInfo, "AppElementBulkCreateInfo should not be nil")
+	require.True(t, len(appElementBulkCreateInfo.GetElementIds()) == len(elements.elementNames))
+
+	InitializeTester[*onshape.CommentApiService](t)
+	e1id := "e1.PRT"
+	e2id := "e2.PRT"
+	onshapeAPIClient := Context()["client"].(*onshape.APIClient)
+	commentApi := onshapeAPIClient.CommentApi
+
+	//Step 1: create A
+	var commentA string
+	OpenAPITest{
+		Call: onshape.ApiCreateCommentRequest{
+			ApiService: commentApi,
+		}.BTCommentParams(onshape.BTCommentParams{
+			DocumentId:  Ptr(did),
+			ObjectId:    Ptr(did),
+			WorkspaceId: Ptr(wid),
+			ElementId: Ptr(e1id),
+			Message:     Ptr("Comment A"),
+		}),
+		Expect: NoAPIErrorAnd(func(r *onshape.BTCommentInfo) {
+			
+			require.NotNil(Tester(), r)
+			require.NotEmpty(Tester(), r.GetId())
+			commentA = r.GetId()
+			require.Equal(Tester(), "Comment A", r.GetMessage())
+		}),
+	}.Execute()
+	//Step 2: create B
+	OpenAPITest{
+		Call: onshape.ApiCreateCommentRequest{
+			ApiService: commentApi,
+		}.BTCommentParams(onshape.BTCommentParams{
+			DocumentId:  Ptr(did),
+			ObjectId:    Ptr(did),
+			WorkspaceId: Ptr(wid),
+			ElementId: Ptr(e2id),
+			Message:     Ptr("Comment B as a reply to comment A"),
+			ParentId: 	Ptr(commentA),
+		}),
+		Expect: NoAPIErrorAnd(func(r *onshape.BTCommentInfo) {
+			require.NotNil(Tester(), r)
+			require.NotEmpty(Tester(), r.GetId())
+			require.NotEmpty(Tester(),r.GetElementId())
+			require.Equal(Tester(), e2id, r.GetElementId())
+			require.Equal(Tester(), "Comment B as a reply to comment A", r.GetMessage())
+		}),
 	}.Execute()
 }
