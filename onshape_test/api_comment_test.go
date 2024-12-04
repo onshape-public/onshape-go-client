@@ -135,3 +135,48 @@ func TestCommentAPI(t *testing.T) {
 		Expect: NoAPIError(),
 	}.Execute()
 }
+
+/*** ADDITIONAL TESTS
+
+OpenAPITest{
+    Call: onshape.ApiGetCommentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiUpdateCommentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiDeleteCommentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiAddAttachmentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiDeleteAttachmentsRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiGetAttachmentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiReopenRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiResolveRequest{},
+    Expect: Todo(),
+}.Execute()
+
+
+***/

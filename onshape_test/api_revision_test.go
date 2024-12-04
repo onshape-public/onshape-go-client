@@ -49,3 +49,13 @@ func TestRevisionAPI(t *testing.T) {
 		Expect: Todo(),
 	}.Execute()
 }
+
+/*** ADDITIONAL TESTS
+
+OpenAPITest{
+    Call: onshape.ApiGetAllInDocumentRequest{},
+    Expect: Todo(),
+}.Execute()
+
+
+***/

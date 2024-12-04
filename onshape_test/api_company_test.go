@@ -25,3 +25,22 @@ func TestCompanyAPI(t *testing.T) {
     }.Execute()
     
 }
+/*** ADDITIONAL TESTS
+
+OpenAPITest{
+    Call: onshape.ApiAddUserToCompanyRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiUpdateCompanyUserRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiRemoveUserFromCompanyRequest{},
+    Expect: Todo(),
+}.Execute()
+
+
+***/

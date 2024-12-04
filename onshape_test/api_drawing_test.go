@@ -25,3 +25,17 @@ func TestDrawingAPI(t *testing.T) {
     }.Execute()
     
 }
+/*** ADDITIONAL TESTS
+
+OpenAPITest{
+    Call: onshape.ApiModifyDrawingRequest{},
+    Expect: Todo(),
+}.Execute()
+
+OpenAPITest{
+    Call: onshape.ApiGetModificationStatusRequest{},
+    Expect: Todo(),
+}.Execute()
+
+
+***/

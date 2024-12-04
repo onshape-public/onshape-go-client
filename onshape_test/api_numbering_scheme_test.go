@@ -6,7 +6,7 @@ import (
 	"github.com/onshape-public/go-client/onshape"
 )
 
-func TestPartNumberAPI(t *testing.T) {
+func TestNumberingSchemeAPI(t *testing.T) {
     InitializeTester[*onshape.NumberingSchemeApiService](t)
 
     OpenAPITest{
@@ -15,12 +15,3 @@ func TestPartNumberAPI(t *testing.T) {
     }.Execute()
     
 }
-/*** ADDITIONAL TESTS
-
-OpenAPITest{
-    Call: onshape.ApiUpdateNextNumbersRequest{},
-    Expect: Todo(),
-}.Execute()
-
-
-***/

@@ -349,3 +349,13 @@ OpenAPITest{
 
 
 ***/
+
+/*** ADDITIONAL TESTS
+
+OpenAPITest{
+    Call: onshape.ApiDeleteAppElementContentBatchRequest{},
+    Expect: Todo(),
+}.Execute()
+
+
+***/
